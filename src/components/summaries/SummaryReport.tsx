@@ -314,18 +314,6 @@ function SentimentSection({ sentiment }: { sentiment: SummaryContent["sentiment"
   );
 }
 
-function SentimentBar({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-[10px] text-muted-foreground w-14 text-right">{label}</span>
-      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} />
-      </div>
-      <span className="text-[10px] font-medium text-foreground w-8">{value}%</span>
-    </div>
-  );
-}
-
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 8 ? "bg-success text-success-foreground" :
     score >= 5 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground";
