@@ -1,1 +1,0 @@
-ALTER TABLE public.monitored_groups ADD COLUMN picture_url TEXT;
