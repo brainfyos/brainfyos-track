@@ -35,23 +35,26 @@ create index idx_clients_document on public.clients(document);
 create trigger set_updated_at before update on public.clients
   for each row execute function public.tg_set_updated_at();
 
+grant select, insert, update, delete on public.clients to authenticated;
+grant all on public.clients to service_role;
+
 alter table public.clients enable row level security;
 
 create policy "org members can view clients"
   on public.clients for select
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can insert clients"
   on public.clients for insert
-  with check (public.is_org_member(organization_id, auth.uid()));
+  with check (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can update clients"
   on public.clients for update
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org admins can delete clients"
   on public.clients for delete
-  using (public.has_org_role(organization_id, 'admin', auth.uid()));
+  using (public.has_org_role(auth.uid(), organization_id, 'admin'));
 
 -- =========================================================
 -- demands
@@ -81,23 +84,26 @@ create index idx_demands_conversation on public.demands(conversation_id);
 create trigger set_updated_at before update on public.demands
   for each row execute function public.tg_set_updated_at();
 
+grant select, insert, update, delete on public.demands to authenticated;
+grant all on public.demands to service_role;
+
 alter table public.demands enable row level security;
 
 create policy "org members can view demands"
   on public.demands for select
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can insert demands"
   on public.demands for insert
-  with check (public.is_org_member(organization_id, auth.uid()));
+  with check (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can update demands"
   on public.demands for update
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org admins can delete demands"
   on public.demands for delete
-  using (public.has_org_role(organization_id, 'admin', auth.uid()));
+  using (public.has_org_role(auth.uid(), organization_id, 'admin'));
 
 -- =========================================================
 -- tasks
@@ -128,23 +134,26 @@ create index idx_tasks_due_at on public.tasks(due_at);
 create trigger set_updated_at before update on public.tasks
   for each row execute function public.tg_set_updated_at();
 
+grant select, insert, update, delete on public.tasks to authenticated;
+grant all on public.tasks to service_role;
+
 alter table public.tasks enable row level security;
 
 create policy "org members can view tasks"
   on public.tasks for select
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can insert tasks"
   on public.tasks for insert
-  with check (public.is_org_member(organization_id, auth.uid()));
+  with check (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can update tasks"
   on public.tasks for update
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org admins can delete tasks"
   on public.tasks for delete
-  using (public.has_org_role(organization_id, 'admin', auth.uid()));
+  using (public.has_org_role(auth.uid(), organization_id, 'admin'));
 
 -- =========================================================
 -- deadlines (always require human confirmation for legal deadlines)
@@ -173,23 +182,26 @@ create index idx_deadlines_due_at on public.deadlines(due_at);
 create trigger set_updated_at before update on public.deadlines
   for each row execute function public.tg_set_updated_at();
 
+grant select, insert, update, delete on public.deadlines to authenticated;
+grant all on public.deadlines to service_role;
+
 alter table public.deadlines enable row level security;
 
 create policy "org members can view deadlines"
   on public.deadlines for select
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can insert deadlines"
   on public.deadlines for insert
-  with check (public.is_org_member(organization_id, auth.uid()));
+  with check (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can update deadlines"
   on public.deadlines for update
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org admins can delete deadlines"
   on public.deadlines for delete
-  using (public.has_org_role(organization_id, 'admin', auth.uid()));
+  using (public.has_org_role(auth.uid(), organization_id, 'admin'));
 
 -- =========================================================
 -- ai_suggestions (IA sugere; humano confirma antes de virar Demand/Deadline)
@@ -222,23 +234,26 @@ create index idx_ai_suggestions_client on public.ai_suggestions(client_id);
 create index idx_ai_suggestions_status on public.ai_suggestions(status);
 create index idx_ai_suggestions_type on public.ai_suggestions(suggestion_type);
 
+grant select, insert, update, delete on public.ai_suggestions to authenticated;
+grant all on public.ai_suggestions to service_role;
+
 alter table public.ai_suggestions enable row level security;
 
 create policy "org members can view ai suggestions"
   on public.ai_suggestions for select
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can insert ai suggestions"
   on public.ai_suggestions for insert
-  with check (public.is_org_member(organization_id, auth.uid()));
+  with check (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org members can update ai suggestions"
   on public.ai_suggestions for update
-  using (public.is_org_member(organization_id, auth.uid()));
+  using (public.is_org_member(auth.uid(), organization_id));
 
 create policy "org admins can delete ai suggestions"
   on public.ai_suggestions for delete
-  using (public.has_org_role(organization_id, 'admin', auth.uid()));
+  using (public.has_org_role(auth.uid(), organization_id, 'admin'));
 
 -- =========================================================
 -- link WhatsApp conversations (monitored_groups) to a Client
