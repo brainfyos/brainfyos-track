@@ -14,6 +14,85 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_suggestions: {
+        Row: {
+          client_id: string | null
+          confidence: number | null
+          conversation_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          payload: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_message_ids: string[]
+          status: string
+          suggested_deadline: string | null
+          suggested_owner: string | null
+          suggestion_type: string
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          client_id?: string | null
+          confidence?: number | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          payload?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_message_ids?: string[]
+          status?: string
+          suggested_deadline?: string | null
+          suggested_owner?: string | null
+          suggestion_type: string
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          client_id?: string | null
+          confidence?: number | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          payload?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_message_ids?: string[]
+          status?: string
+          suggested_deadline?: string | null
+          suggested_owner?: string | null
+          suggestion_type?: string
+          summary?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_suggestions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "monitored_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_suggestions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analyses: {
         Row: {
           created_at: string
@@ -117,85 +196,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      ai_suggestions: {
-        Row: {
-          client_id: string | null
-          confidence: number | null
-          conversation_id: string
-          created_at: string
-          id: string
-          organization_id: string
-          payload: Json
-          reviewed_at: string | null
-          reviewed_by: string | null
-          source_message_ids: string[]
-          status: string
-          suggested_deadline: string | null
-          suggested_owner: string | null
-          suggestion_type: string
-          summary: string | null
-          title: string
-        }
-        Insert: {
-          client_id?: string | null
-          confidence?: number | null
-          conversation_id: string
-          created_at?: string
-          id?: string
-          organization_id: string
-          payload?: Json
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          source_message_ids?: string[]
-          status?: string
-          suggested_deadline?: string | null
-          suggested_owner?: string | null
-          suggestion_type: string
-          summary?: string | null
-          title: string
-        }
-        Update: {
-          client_id?: string | null
-          confidence?: number | null
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          organization_id?: string
-          payload?: Json
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          source_message_ids?: string[]
-          status?: string
-          suggested_deadline?: string | null
-          suggested_owner?: string | null
-          suggestion_type?: string
-          summary?: string | null
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_suggestions_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_suggestions_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "monitored_groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_suggestions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       chat_messages: {
         Row: {
