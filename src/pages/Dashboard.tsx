@@ -1,150 +1,69 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Users, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import GroupCard from "@/components/GroupCard";
+import { Briefcase, CalendarClock, CheckSquare, MessageSquare, Sparkles, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
-import { useAuth } from "@/hooks/useAuth";
-import { useGroupPictures } from "@/hooks/useGroupPictures";
-import { useSetupStatus } from "@/hooks/useSetupStatus";
-import { SetupBanner } from "@/components/setup/SetupBanner";
-import { SetupWizard } from "@/components/setup/SetupWizard";
-import { MemberSetupBanner } from "@/components/setup/MemberSetupBanner";
-import { MemberSetupWizard } from "@/components/setup/MemberSetupWizard";
+import { DEMAND_STATUSES } from "@/hooks/useDemands";
+import { SUGGESTION_TYPE_LABELS } from "@/hooks/useAiSuggestions";
 
-interface GroupData {
-  id: string;
-  name: string;
-  participant_count: number;
-  whatsapp_group_id: string;
-  is_active: boolean;
-  created_at: string;
-  newMessages: number;
-  pendingQuestions: number;
-  lastAnalysisDate: string | null;
-  isUserMember: boolean;
-  picture_url?: string | null;
+interface Stats {
+  openDemands: number;
+  upcomingDeadlines: { id: string; title: string; due_at: string; client_name: string | null }[];
+  pendingTasks: number;
+  pendingSuggestions: { id: string; title: string; suggestion_type: string }[];
 }
 
+const STAT_CARDS = [
+  { key: "openDemands" as const, label: "Demandas abertas", icon: Briefcase, to: "/demandas" },
+  { key: "pendingTasks" as const, label: "Tarefas pendentes", icon: CheckSquare, to: "/tarefas" },
+];
+
 export default function Dashboard() {
-  const { org, loading: orgLoading, isAdmin } = useOrganization();
-  const { user } = useAuth();
-  const [groups, setGroups] = useState<GroupData[]>([]);
+  const { org, loading: orgLoading } = useOrganization();
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [statsLoaded, setStatsLoaded] = useState(false);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const { steps, refetch: refetchSetup } = useSetupStatus();
-  const pictures = useGroupPictures(org?.id, groups);
 
-  // Step 1: Load groups immediately (fast query)
   useEffect(() => {
-    if (!org) { setLoading(false); return; }
+    if (!org) return;
+    const load = async () => {
+      setLoading(true);
+      const [demandsRes, deadlinesRes, tasksRes, suggestionsRes] = await Promise.all([
+        supabase.from("demands").select("id", { count: "exact", head: true }).eq("organization_id", org.id).neq("status", "completed"),
+        supabase
+          .from("deadlines")
+          .select("id, title, due_at, clients(name)")
+          .eq("organization_id", org.id)
+          .neq("status", "completed")
+          .neq("status", "cancelled")
+          .order("due_at", { ascending: true })
+          .limit(5),
+        supabase.from("tasks").select("id", { count: "exact", head: true }).eq("organization_id", org.id).neq("status", "completed"),
+        supabase
+          .from("ai_suggestions")
+          .select("id, title, suggestion_type")
+          .eq("organization_id", org.id)
+          .eq("status", "pending")
+          .order("created_at", { ascending: false })
+          .limit(5),
+      ]);
 
-    const fetchGroups = async () => {
-      const { data: monitoredGroups } = await supabase
-        .from("monitored_groups")
-        .select("id, name, participant_count, whatsapp_group_id, is_active, created_at, picture_url")
-        .eq("org_id", org.id)
-        .eq("is_active", true);
-
-      if (!monitoredGroups?.length) { setGroups([]); setLoading(false); return; }
-
-      setGroups(monitoredGroups.map(g => ({
-        id: g.id,
-        name: g.name,
-        participant_count: g.participant_count,
-        whatsapp_group_id: g.whatsapp_group_id,
-        is_active: g.is_active,
-        created_at: g.created_at,
-        picture_url: g.picture_url,
-        newMessages: 0,
-        pendingQuestions: 0,
-        lastAnalysisDate: null,
-        isUserMember: true,
-      })));
+      setStats({
+        openDemands: demandsRes.count || 0,
+        upcomingDeadlines: (deadlinesRes.data || []).map((d: { id: string; title: string; due_at: string; clients: { name: string } | null }) => ({
+          id: d.id,
+          title: d.title,
+          due_at: d.due_at,
+          client_name: d.clients?.name ?? null,
+        })),
+        pendingTasks: tasksRes.count || 0,
+        pendingSuggestions: suggestionsRes.data || [],
+      });
       setLoading(false);
     };
-
-    fetchGroups();
+    load();
   }, [org]);
 
-  // Step 2: Load stats in background
-  useEffect(() => {
-    if (!org || !user || groups.length === 0 || loading || statsLoaded) return;
-
-    const fetchStats = async () => {
-      const groupIds = groups.map(g => g.id);
-
-      const { data: analyses } = await supabase
-        .from("analyses")
-        .select("id, group_id, created_at")
-        .in("group_id", groupIds)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false });
-
-      const latestByGroup = new Map<string, { id: string; created_at: string }>();
-      for (const a of analyses || []) {
-        if (!latestByGroup.has(a.group_id)) {
-          latestByGroup.set(a.group_id, { id: a.id, created_at: a.created_at });
-        }
-      }
-
-      const analysisIds = Array.from(latestByGroup.values()).map(a => a.id);
-      let pendingByAnalysis = new Map<string, number>();
-      if (analysisIds.length > 0) {
-        const { data: blocks } = await supabase
-          .from("context_blocks")
-          .select("analysis_id")
-          .in("analysis_id", analysisIds)
-          .eq("is_answered", false);
-
-        for (const b of blocks || []) {
-          pendingByAnalysis.set(b.analysis_id, (pendingByAnalysis.get(b.analysis_id) || 0) + 1);
-        }
-      }
-
-      const msgCounts = await Promise.all(
-        groups.map(async (g) => {
-          const latest = latestByGroup.get(g.id);
-          let q = supabase.from("messages").select("id", { count: "exact", head: true }).eq("group_id", g.id);
-          if (latest) q = q.gt("sent_at", latest.created_at);
-          const { count } = await q;
-          return { id: g.id, count: count || 0 };
-        })
-      );
-      const msgCountMap = new Map(msgCounts.map(m => [m.id, m.count]));
-
-      let membershipMap: Record<string, boolean> = {};
-      try {
-        const { data } = await supabase.functions.invoke("check-group-membership", {
-          body: {
-            org_id: org.id,
-            user_id: user.id,
-            group_whatsapp_ids: groups.map(g => g.whatsapp_group_id),
-          },
-        });
-        if (data?.success) membershipMap = data.membership || {};
-      } catch {}
-
-      setGroups(prev => prev.map(g => {
-        const latest = latestByGroup.get(g.id);
-        const analysisId = latest?.id;
-        return {
-          ...g,
-          newMessages: msgCountMap.get(g.id) || 0,
-          pendingQuestions: analysisId ? (pendingByAnalysis.get(analysisId) || 0) : 0,
-          lastAnalysisDate: latest?.created_at || null,
-          isUserMember: membershipMap[g.whatsapp_group_id] !== false,
-        };
-      }));
-      setStatsLoaded(true);
-    };
-
-    fetchStats();
-  }, [org, user, groups.length, loading, statsLoaded]);
-
-  if (orgLoading || loading) {
+  if (orgLoading || loading || !stats) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-6 w-6 text-primary animate-spin" />
@@ -153,62 +72,84 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      {isAdmin ? (
-        <>
-          <SetupBanner onOpenWizard={() => setWizardOpen(true)} />
-          <SetupWizard isOpen={wizardOpen} onClose={() => { setWizardOpen(false); refetchSetup(); }} />
-        </>
-      ) : (
-        <>
-          <MemberSetupBanner onOpenWizard={() => setWizardOpen(true)} />
-          <MemberSetupWizard isOpen={wizardOpen} onClose={() => { setWizardOpen(false); }} />
-        </>
-      )}
+    <div className="p-6 md:p-8 max-w-4xl mx-auto">
+      <h1 className="text-xl font-semibold text-foreground tracking-tight mb-6">Visão Geral</h1>
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">Meus Grupos</h1>
-        <Link to="/select-groups">
-          <Button size="sm" className="gap-1.5">
-            <Plus className="h-4 w-4" /> Adicionar
-          </Button>
-        </Link>
+      <div className="grid grid-cols-2 gap-3 mb-8">
+        {STAT_CARDS.map(({ key, label, icon: Icon, to }) => (
+          <Link key={key} to={to} className="rounded-lg border border-border bg-card p-4 hover:border-primary/40 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <Icon className="h-4 w-4 text-primary" />
+              <span className="text-2xl font-semibold text-foreground">{stats[key]}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">{label}</p>
+          </Link>
+        ))}
       </div>
 
-      {groups.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <Users className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <h3 className="text-sm font-medium text-foreground mb-1">Nenhum grupo monitorado</h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            Adicione grupos do WhatsApp para começar.
+      <div className="grid gap-6 md:grid-cols-2">
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <CalendarClock className="h-4 w-4 text-primary" /> Prazos próximos
+            </h2>
+            <Link to="/prazos" className="text-[11px] text-muted-foreground hover:text-primary flex items-center gap-0.5">
+              Ver todos <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          {stats.upcomingDeadlines.length === 0 ? (
+            <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-6 text-center">Nenhum prazo próximo.</p>
+          ) : (
+            <div className="rounded-lg border border-border bg-card divide-y divide-border">
+              {stats.upcomingDeadlines.map((d) => (
+                <div key={d.id} className="px-3 py-2.5 text-sm">
+                  <p className="text-foreground font-medium truncate">{d.title}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {d.client_name ? `${d.client_name} · ` : ""}{new Date(d.due_at).toLocaleDateString("pt-BR")}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-accent" /> Sugestões de IA aguardando revisão
+            </h2>
+            <Link to="/inteligencia" className="text-[11px] text-muted-foreground hover:text-primary flex items-center gap-0.5">
+              Ver todas <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          {stats.pendingSuggestions.length === 0 ? (
+            <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-6 text-center">Nenhuma sugestão pendente.</p>
+          ) : (
+            <div className="rounded-lg border border-border bg-card divide-y divide-border">
+              {stats.pendingSuggestions.map((s) => (
+                <div key={s.id} className="px-3 py-2.5 text-sm">
+                  <p className="text-foreground font-medium truncate">{s.title}</p>
+                  <p className="text-[11px] text-muted-foreground">{SUGGESTION_TYPE_LABELS[s.suggestion_type] || s.suggestion_type}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="md:col-span-2">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <MessageSquare className="h-4 w-4 text-primary" /> Conversas
+            </h2>
+            <Link to="/conversas" className="text-[11px] text-muted-foreground hover:text-primary flex items-center gap-0.5">
+              Ver todas <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-6 text-center">
+            Acompanhe as conversas do WhatsApp em <Link to="/conversas" className="text-primary hover:underline">Conversas</Link>.
           </p>
-          <Link to="/select-groups">
-            <Button size="sm" className="gap-1.5">
-              <Plus className="h-4 w-4" /> Adicionar Grupo
-            </Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="rounded-lg border border-border bg-card divide-y divide-border">
-          {groups.map((group, i) => (
-            <GroupCard
-              key={group.id}
-              style={{ animationDelay: `${i * 50}ms` }}
-              pictureUrl={pictures[group.id]}
-              group={{
-                id: group.id,
-                name: group.name,
-                participantCount: group.participant_count,
-                newMessages: group.newMessages,
-                lastAnalysisDate: group.lastAnalysisDate,
-                pendingQuestions: group.pendingQuestions,
-                isUserMember: group.isUserMember,
-                status: "active",
-              }}
-            />
-          ))}
-        </div>
-      )}
+        </section>
+      </div>
     </div>
   );
 }

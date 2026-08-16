@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Settings, LogOut, Users, PanelLeftClose, PanelLeft, BookOpen, Menu, X, Sun, Moon, FileText } from "lucide-react";
+import { LayoutDashboard, Settings, LogOut, Users, PanelLeftClose, PanelLeft, BookOpen, Menu, X, Sun, Moon, Contact, MessageSquare, Briefcase, CheckSquare, CalendarClock, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -16,9 +16,14 @@ function profileInitials(profile: { full_name: string | null } | null | undefine
 }
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Grupos", path: "/" },
-  { icon: FileText, label: "Resumos", path: "/summaries" },
-  { icon: BookOpen, label: "Knowledge", path: "/knowledge" },
+  { icon: LayoutDashboard, label: "Visão Geral", path: "/" },
+  { icon: Contact, label: "Clientes", path: "/clientes" },
+  { icon: MessageSquare, label: "Conversas", path: "/conversas" },
+  { icon: Briefcase, label: "Demandas", path: "/demandas" },
+  { icon: CheckSquare, label: "Tarefas", path: "/tarefas" },
+  { icon: CalendarClock, label: "Prazos", path: "/prazos" },
+  { icon: BookOpen, label: "Conhecimento", path: "/knowledge" },
+  { icon: Sparkles, label: "Inteligência", path: "/inteligencia" },
   { icon: Users, label: "Equipe", path: "/team" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
@@ -44,7 +49,7 @@ function SidebarContent({ collapsed, toggleCollapsed, org, user, signOut, locati
             {(org?.name || "G").charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        {!collapsed && <span className="text-lg font-semibold text-foreground tracking-tight">{org?.name || "GroupLens"}</span>}
+        {!collapsed && <span className="text-lg font-semibold text-foreground tracking-tight">{org?.name || "Jusbrain"}</span>}
       </div>
 
       <nav className="flex-1 px-2 py-4 space-y-1">

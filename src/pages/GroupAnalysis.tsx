@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Sparkles, Loader2, Clock, Settings2, ChevronDown, ChevronUp, Users, MessageSquare, ArrowLeft, Trash2, CalendarIcon, SlidersHorizontal } from "lucide-react";
+import { Sparkles, Loader2, Clock, Settings2, ChevronDown, ChevronUp, Users, MessageSquare, ArrowLeft, Trash2, CalendarIcon, SlidersHorizontal, Wand2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DateWheelPicker } from "@/components/ui/date-wheel-picker";
@@ -18,6 +18,8 @@ import { useGroupPictures } from "@/hooks/useGroupPictures";
 import { toast } from "sonner";
 import { GroupRulesEditor } from "@/components/settings/GroupRulesEditor";
 import { GroupKnowledgeSelector } from "@/components/knowledge/GroupKnowledgeSelector";
+import { ClientSelect } from "@/components/ClientSelect";
+import { useClients } from "@/hooks/useClients";
 
 interface GroupInfo {
   id: string;
@@ -25,6 +27,7 @@ interface GroupInfo {
   participant_count: number;
   whatsapp_group_id: string;
   picture_url?: string | null;
+  client_id?: string | null;
 }
 
 interface ContextBlockData {
@@ -56,14 +59,16 @@ export default function GroupAnalysis() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
   const pictures = useGroupPictures(org?.id, group ? [group] : []);
+  const { clients } = useClients(org?.id);
 
   useEffect(() => {
     if (!groupId) return;
     const fetchGroup = async () => {
       const { data } = await supabase
         .from("monitored_groups")
-        .select("id, name, participant_count, whatsapp_group_id, picture_url")
+        .select("id, name, participant_count, whatsapp_group_id, picture_url, client_id")
         .eq("id", groupId)
         .single();
       if (data) setGroup(data);
@@ -169,6 +174,31 @@ export default function GroupAnalysis() {
     }
   };
 
+  const handleGenerateSuggestions = async () => {
+    if (!groupId || !org) return;
+    setGeneratingSuggestions(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-ai-suggestions", {
+        body: { conversation_id: groupId, organization_id: org.id },
+      });
+      if (error) throw error;
+      const count = data?.suggestions_created || 0;
+      toast.success(count > 0 ? `${count} sugestão(ões) gerada(s)! Veja em Inteligência.` : "Nenhuma sugestão relevante encontrada.");
+    } catch (err: any) {
+      toast.error("Erro ao gerar sugestões: " + (err.message || "Tente novamente"));
+    } finally {
+      setGeneratingSuggestions(false);
+    }
+  };
+
+  const handleLinkClient = async (clientId: string | null) => {
+    if (!groupId) return;
+    const { error } = await supabase.from("monitored_groups").update({ client_id: clientId }).eq("id", groupId);
+    if (error) { toast.error("Erro ao vincular cliente"); return; }
+    setGroup((prev) => (prev ? { ...prev, client_id: clientId } : prev));
+    toast.success(clientId ? "Cliente vinculado" : "Cliente desvinculado");
+  };
+
   const handleDeleteGroup = async () => {
     if (!groupId || !group || deleteConfirm !== group.name) return;
     setDeleting(true);
@@ -238,6 +268,14 @@ export default function GroupAnalysis() {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Client link */}
+      <div className="flex items-center gap-2 mb-6 text-xs">
+        <span className="text-muted-foreground shrink-0">Cliente vinculado:</span>
+        <div className="w-64">
+          <ClientSelect clients={clients} value={group.client_id ?? null} onChange={handleLinkClient} allowNone placeholder="Nenhum cliente vinculado" />
         </div>
       </div>
 
@@ -326,13 +364,28 @@ export default function GroupAnalysis() {
           </Popover>
         </div>
 
-        <Button size="sm" onClick={handleAnalyze} disabled={isAnalyzing} className="gap-2 h-9 text-xs shadow-sm shrink-0">
-          {isAnalyzing ? (
-            <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Analisando</>
-          ) : (
-            <><Sparkles className="h-3.5 w-3.5" /> Analisar</>
-          )}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleGenerateSuggestions}
+            disabled={generatingSuggestions}
+            className="gap-2 h-9 text-xs"
+          >
+            {generatingSuggestions ? (
+              <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Gerando</>
+            ) : (
+              <><Wand2 className="h-3.5 w-3.5" /> Gerar sugestões de IA</>
+            )}
+          </Button>
+          <Button size="sm" onClick={handleAnalyze} disabled={isAnalyzing} className="gap-2 h-9 text-xs shadow-sm">
+            {isAnalyzing ? (
+              <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Analisando</>
+            ) : (
+              <><Sparkles className="h-3.5 w-3.5" /> Analisar</>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Analyzing state */}

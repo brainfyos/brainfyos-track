@@ -66,7 +66,7 @@ export default function AuthPage() {
       <div className="w-full max-w-sm animate-slide-up">
          <div className="flex items-center gap-3 justify-center mb-8">
            <img src={logo} alt="VIA Logo" className="h-10 w-auto" />
-           <span className="text-2xl font-bold text-foreground tracking-tight">GroupLens</span>
+           <span className="text-2xl font-bold text-foreground tracking-tight">Jusbrain</span>
         </div>
 
         <div className="glass-panel rounded-xl p-6">

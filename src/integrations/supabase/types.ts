@@ -118,6 +118,85 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_suggestions: {
+        Row: {
+          client_id: string | null
+          confidence: number | null
+          conversation_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          payload: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_message_ids: string[]
+          status: string
+          suggested_deadline: string | null
+          suggested_owner: string | null
+          suggestion_type: string
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          client_id?: string | null
+          confidence?: number | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          payload?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_message_ids?: string[]
+          status?: string
+          suggested_deadline?: string | null
+          suggested_owner?: string | null
+          suggestion_type: string
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          client_id?: string | null
+          confidence?: number | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          payload?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_message_ids?: string[]
+          status?: string
+          suggested_deadline?: string | null
+          suggested_owner?: string | null
+          suggestion_type?: string
+          summary?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_suggestions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "monitored_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_suggestions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -178,6 +257,53 @@ export type Database = {
             columns: ["context_block_id"]
             isOneToOne: false
             referencedRelation: "context_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -304,6 +430,143 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "monitored_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deadlines: {
+        Row: {
+          client_id: string
+          confirmed_by_human: boolean
+          created_at: string
+          demand_id: string | null
+          due_at: string
+          id: string
+          notes: string | null
+          organization_id: string
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          confirmed_by_human?: boolean
+          created_at?: string
+          demand_id?: string | null
+          due_at: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          confirmed_by_human?: boolean
+          created_at?: string
+          demand_id?: string | null
+          due_at?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deadlines_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deadlines_demand_id_fkey"
+            columns: ["demand_id"]
+            isOneToOne: false
+            referencedRelation: "demands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deadlines_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demands: {
+        Row: {
+          assigned_to: string | null
+          client_id: string
+          completed_at: string | null
+          conversation_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          organization_id: string
+          priority: string
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_id: string
+          completed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          organization_id: string
+          priority?: string
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          client_id?: string
+          completed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          organization_id?: string
+          priority?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demands_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demands_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "monitored_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demands_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -614,6 +877,7 @@ export type Database = {
       }
       monitored_groups: {
         Row: {
+          client_id: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -624,6 +888,7 @@ export type Database = {
           whatsapp_group_id: string
         }
         Insert: {
+          client_id?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -634,6 +899,7 @@ export type Database = {
           whatsapp_group_id: string
         }
         Update: {
+          client_id?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -644,6 +910,13 @@ export type Database = {
           whatsapp_group_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "monitored_groups_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "monitored_groups_org_id_fkey"
             columns: ["org_id"]
@@ -888,6 +1161,76 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          client_id: string | null
+          completed_at: string | null
+          created_at: string
+          demand_id: string | null
+          description: string | null
+          due_at: string | null
+          id: string
+          organization_id: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          demand_id?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          organization_id: string
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          demand_id?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          organization_id?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_demand_id_fkey"
+            columns: ["demand_id"]
+            isOneToOne: false
+            referencedRelation: "demands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_logs: {
         Row: {

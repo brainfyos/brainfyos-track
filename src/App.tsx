@@ -8,6 +8,13 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
+import ConversationsPage from "@/pages/ConversationsPage";
+import ClientsPage from "@/pages/ClientsPage";
+import ClientDetailPage from "@/pages/ClientDetailPage";
+import DemandsPage from "@/pages/DemandsPage";
+import TasksPage from "@/pages/TasksPage";
+import DeadlinesPage from "@/pages/DeadlinesPage";
+import IntelligencePage from "@/pages/IntelligencePage";
 import GroupAnalysis from "@/pages/GroupAnalysis";
 import ChatContext from "@/pages/ChatContext";
 import SettingsPage from "@/pages/SettingsPage";
@@ -88,6 +95,13 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<OnboardingRoute><OnboardingPage /></OnboardingRoute>} />
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/clientes" element={<ProtectedRoute><ClientsPage /></ProtectedRoute>} />
+              <Route path="/clientes/:clientId" element={<ProtectedRoute><ClientDetailPage /></ProtectedRoute>} />
+              <Route path="/conversas" element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
+              <Route path="/demandas" element={<ProtectedRoute><DemandsPage /></ProtectedRoute>} />
+              <Route path="/tarefas" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
+              <Route path="/prazos" element={<ProtectedRoute><DeadlinesPage /></ProtectedRoute>} />
+              <Route path="/inteligencia" element={<ProtectedRoute><IntelligencePage /></ProtectedRoute>} />
               <Route path="/group/:groupId" element={<ProtectedRoute><GroupAnalysis /></ProtectedRoute>} />
               <Route path="/chat/:groupId/:contextId" element={<ProtectedRoute><ChatContext /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
