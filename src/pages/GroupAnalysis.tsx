@@ -220,11 +220,11 @@ export default function GroupAnalysis() {
       await supabase.from("group_knowledge_bases").delete().eq("group_id", groupId);
       await supabase.from("monitored_groups").delete().eq("id", groupId);
 
-      toast.success("Grupo excluído com sucesso");
+      toast.success("Conversa excluída com sucesso");
       navigate("/");
     } catch (err: any) {
       console.error(err);
-      toast.error("Erro ao excluir grupo: " + (err.message || "Tente novamente"));
+      toast.error("Erro ao excluir conversa: " + (err.message || "Tente novamente"));
     } finally {
       setDeleting(false);
     }
@@ -239,7 +239,7 @@ export default function GroupAnalysis() {
   }
 
   if (!group) {
-    return <div className="p-6 text-center text-muted-foreground">Grupo não encontrado.</div>;
+    return <div className="p-6 text-center text-muted-foreground">Conversa não encontrada.</div>;
   }
 
   const answered = contextBlocks.filter((b) => b.is_answered).length;
@@ -447,7 +447,7 @@ export default function GroupAnalysis() {
         <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen} className="mt-12">
           <CollapsibleTrigger className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full py-2">
             <Settings2 className="h-4 w-4" />
-            <span className="font-medium">Configurações do grupo</span>
+            <span className="font-medium">Configurações da conversa</span>
             {settingsOpen ? <ChevronUp className="h-3.5 w-3.5 ml-auto" /> : <ChevronDown className="h-3.5 w-3.5 ml-auto" />}
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4 pt-4">
@@ -462,7 +462,7 @@ export default function GroupAnalysis() {
             <div className="rounded-lg border border-destructive/30 p-4 mt-2">
               <h4 className="text-xs font-semibold text-destructive mb-1">Zona de perigo</h4>
               <p className="text-xs text-muted-foreground mb-3">
-                Ações irreversíveis para este grupo.
+                Ações irreversíveis para esta conversa.
               </p>
               <Button
                 variant="destructive"
@@ -470,7 +470,7 @@ export default function GroupAnalysis() {
                 className="gap-1.5 text-xs"
                 onClick={() => { setDeleteConfirm(""); setDeleteOpen(true); }}
               >
-                <Trash2 className="h-3.5 w-3.5" /> Excluir grupo
+                <Trash2 className="h-3.5 w-3.5" /> Excluir conversa
               </Button>
             </div>
           </CollapsibleContent>
@@ -481,7 +481,7 @@ export default function GroupAnalysis() {
       <Dialog open={deleteOpen} onOpenChange={(open) => { setDeleteOpen(open); if (!open) setDeleteConfirm(""); }}>
         <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-xl p-5 gap-0 border-border bg-card">
           <DialogHeader className="space-y-1 pb-4">
-            <DialogTitle className="text-sm font-semibold text-foreground">Excluir grupo</DialogTitle>
+            <DialogTitle className="text-sm font-semibold text-foreground">Excluir conversa</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Essa ação não pode ser desfeita.
             </DialogDescription>

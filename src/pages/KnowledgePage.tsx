@@ -100,8 +100,13 @@ export default function KnowledgePage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">Knowledge</h1>
+      <div className="flex items-start justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">Conhecimento</h1>
+          <p className="text-xs text-muted-foreground mt-1 max-w-md">
+            Centralize modelos, contratos, pareceres, petições e documentos de referência para que a IA utilize o conhecimento do escritório.
+          </p>
+        </div>
         {isAdmin && (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
@@ -134,9 +139,9 @@ export default function KnowledgePage() {
       {knowledgeBases.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">
           <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <h3 className="text-sm font-medium text-foreground mb-1">Nenhuma base de conhecimento</h3>
+          <h3 className="text-sm font-medium text-foreground mb-1">Nenhum conhecimento cadastrado ainda</h3>
           <p className="text-xs text-muted-foreground mb-4 max-w-sm mx-auto">
-            Crie uma base para adicionar arquivos e associá-los aos seus grupos.
+            Crie uma base para reunir modelos, contratos, pareceres e outros documentos de referência do escritório.
           </p>
           {isAdmin && (
             <Button size="sm" onClick={() => setDialogOpen(true)} className="gap-1.5">

@@ -132,35 +132,39 @@ export default function ClientDetailPage() {
         </AlertDialog>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        <div className="space-y-1.5">
-          <Label>Documento</Label>
-          <Input defaultValue={client.document || ""} onBlur={(e) => handleSave({ document: e.target.value || null })} placeholder="CPF ou CNPJ" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Tipo</Label>
-          <Select value={client.type} onValueChange={(v) => handleSave({ type: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="person">Pessoa física</SelectItem>
-              <SelectItem value="company">Pessoa jurídica</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Telefone</Label>
-          <Input defaultValue={client.phone || ""} onBlur={(e) => handleSave({ phone: e.target.value || null })} placeholder="(11) 99999-9999" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Email</Label>
-          <Input defaultValue={client.email || ""} onBlur={(e) => handleSave({ email: e.target.value || null })} placeholder="email@cliente.com" />
-        </div>
-        <div className="space-y-1.5 col-span-2">
-          <Label>Observações {saving && <Loader2 className="inline h-3 w-3 animate-spin ml-1" />}</Label>
-          <Textarea defaultValue={client.notes || ""} onBlur={(e) => handleSave({ notes: e.target.value || null })} rows={3} placeholder="Notas internas" />
+      <div className="rounded-lg border border-border/50 bg-card/50 p-4 mb-8">
+        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-3">Dados de contato</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Documento</Label>
+            <Input defaultValue={client.document || ""} onBlur={(e) => handleSave({ document: e.target.value || null })} placeholder="CPF ou CNPJ" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Tipo</Label>
+            <Select value={client.type} onValueChange={(v) => handleSave({ type: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="person">Pessoa física</SelectItem>
+                <SelectItem value="company">Pessoa jurídica</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Telefone</Label>
+            <Input defaultValue={client.phone || ""} onBlur={(e) => handleSave({ phone: e.target.value || null })} placeholder="(11) 99999-9999" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Email</Label>
+            <Input defaultValue={client.email || ""} onBlur={(e) => handleSave({ email: e.target.value || null })} placeholder="email@cliente.com" />
+          </div>
+          <div className="space-y-1.5 col-span-2">
+            <Label>Observações {saving && <Loader2 className="inline h-3 w-3 animate-spin ml-1" />}</Label>
+            <Textarea defaultValue={client.notes || ""} onBlur={(e) => handleSave({ notes: e.target.value || null })} rows={3} placeholder="Notas internas" />
+          </div>
         </div>
       </div>
 
+      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-3">Histórico do cliente</p>
       <Tabs defaultValue="conversas">
         <TabsList>
           <TabsTrigger value="conversas" className="gap-1.5"><MessageSquare className="h-3.5 w-3.5" /> Conversas ({conversations.length})</TabsTrigger>

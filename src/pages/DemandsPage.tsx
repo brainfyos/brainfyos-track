@@ -21,6 +21,15 @@ const PRIORITY_COLOR: Record<string, string> = {
   urgent: "bg-destructive/10 text-destructive",
 };
 
+const STATUS_ACCENT: Record<string, string> = {
+  received: "border-t-muted-foreground/40",
+  analysis: "border-t-blue-500/60",
+  in_progress: "border-t-primary",
+  waiting_client: "border-t-amber-500/60",
+  review: "border-t-accent",
+  completed: "border-t-emerald-500/60",
+};
+
 const emptyForm = { title: "", description: "", client_id: "", priority: "medium" };
 
 export default function DemandsPage() {
@@ -86,9 +95,17 @@ export default function DemandsPage() {
 
   return (
     <div className="p-6 md:p-8 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">Demandas</h1>
-        <Button size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
+      <div className="flex items-start justify-between mb-4 gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Briefcase className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">Demandas</h1>
+            <p className="text-xs text-muted-foreground">O andamento de cada demanda do escritório, do recebimento à conclusão.</p>
+          </div>
+        </div>
+        <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" /> Nova demanda
         </Button>
       </div>
@@ -118,7 +135,10 @@ export default function DemandsPage() {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, stage.value)}
               >
-                <div className="flex items-center justify-between px-3 py-2.5 rounded-t-lg bg-muted/60 border border-border/50 border-b-0">
+                <div className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-t-lg bg-muted/60 border border-border/50 border-b-0 border-t-2",
+                  STATUS_ACCENT[stage.value]
+                )}>
                   <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide">{stage.label}</h3>
                   <Badge variant="outline" className="text-[10px]">{items.length}</Badge>
                 </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Trash2, Camera, Loader2 } from "lucide-react";
+import { Plus, Trash2, Camera, Loader2, Building2, ServerCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -157,109 +157,31 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-xl font-semibold text-foreground tracking-tight mb-6">Configurações</h1>
+      <h1 className="text-xl font-semibold text-foreground tracking-tight mb-1">Configurações</h1>
+      <p className="text-xs text-muted-foreground mb-6">
+        Preferências do escritório no dia a dia e administração técnica da infraestrutura.
+      </p>
 
-      {/* Registration Toggle - visible to all authenticated users */}
-      <div className="rounded-lg border border-border p-4 mb-6 flex items-center justify-between">
-        <div className="space-y-0.5">
-          <h2 className="text-sm font-semibold text-foreground">Registro de novos usuários</h2>
-          <p className="text-[10px] text-muted-foreground">Habilitar ou desabilitar o cadastro de novos usuários na plataforma.</p>
-        </div>
-        <Switch
-          checked={registrationEnabled}
-          onCheckedChange={handleRegistrationToggle}
-          disabled={updatingRegistration}
-        />
-      </div>
-
-      <Tabs defaultValue="keys" className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
-          <TabsTrigger value="keys">Integrações</TabsTrigger>
-          <TabsTrigger value="context">Contexto Global</TabsTrigger>
-          <TabsTrigger value="org">Organização</TabsTrigger>
+      <Tabs defaultValue="office" className="w-full">
+        <TabsList className="w-full grid grid-cols-2 mb-6">
+          <TabsTrigger value="office" className="gap-1.5">
+            <Building2 className="h-3.5 w-3.5" /> Escritório
+          </TabsTrigger>
+          <TabsTrigger value="infra" className="gap-1.5">
+            <ServerCog className="h-3.5 w-3.5" /> Infraestrutura
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="keys" className="space-y-4">
-          {isAdmin && (
-            <section className="rounded-lg border border-border p-4">
-              <EvolutionApiConfig orgId={org.id} />
-            </section>
-          )}
+        {/* ===================== CONFIGURAÇÕES DO ESCRITÓRIO ===================== */}
+        <TabsContent value="office" className="space-y-4">
+          <p className="text-[11px] text-muted-foreground -mt-1 mb-1">
+            Identidade da organização e preferências de como a IA analisa as conversas.
+          </p>
 
-          {isAdmin && (
-            <section className="rounded-lg border border-border p-4">
-              <WhatsAppInstancesManager
-                orgId={org.id}
-                instanceType="master"
-                isAdmin={isAdmin}
-                hasEvolutionConfig={hasEvolutionConfig}
-              />
-            </section>
-          )}
-
-          <section className="rounded-lg border border-border p-4">
-            <WhatsAppInstancesManager
-              orgId={org.id}
-              instanceType="user"
-              userId={user.id}
-              isAdmin={isAdmin}
-              hasEvolutionConfig={hasEvolutionConfig}
-              canCloneInstance={members.find(m => m.user_id === user.id)?.can_clone_instance ?? false}
-            />
-          </section>
-
-          <section className="rounded-lg border border-border p-4">
-            <AnthropicConfig orgId={org.id} isAdmin={isAdmin} />
-          </section>
-
-          {isAdmin && (
-            <section className="rounded-lg border border-border p-4">
-              <ResendConfig orgId={org.id} isAdmin={isAdmin} />
-            </section>
-          )}
-        </TabsContent>
-
-        <TabsContent value="context" className="space-y-4">
-          <section className="rounded-lg border border-border p-4">
-            <div className="mb-3">
-              <h2 className="text-sm font-semibold text-foreground">Regras de Análise (Globais)</h2>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Aplicadas a todos os grupos. Regras por grupo são configuradas na análise.</p>
-            </div>
-            <div className="space-y-1.5 mb-3">
-              {rules.map((rule) => (
-                <div key={rule.id} className="flex items-center gap-2 bg-muted/50 rounded-md px-3 py-2">
-                  <span className="flex-1 text-xs text-foreground">{rule.rule_text}</span>
-                  {isAdmin && (
-                    <button onClick={() => deleteRule(rule.id)} className="text-muted-foreground/50 hover:text-destructive transition-colors">
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              {rules.length === 0 && <p className="text-xs text-muted-foreground">Nenhuma regra adicionada.</p>}
-            </div>
-            {isAdmin && (
-              <div className="flex gap-2">
-                <input
-                  value={newRule}
-                  onChange={(e) => setNewRule(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addRule()}
-                  placeholder="Adicionar nova regra..."
-                  className="flex-1 bg-muted border border-border rounded-md px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                />
-                <Button onClick={addRule} size="sm" variant="outline" className="gap-1 text-xs h-7">
-                  <Plus className="h-3 w-3" /> Adicionar
-                </Button>
-              </div>
-            )}
-          </section>
-        </TabsContent>
-
-        <TabsContent value="org" className="space-y-4">
           {isAdmin ? (
             <section className="rounded-lg border border-border p-4">
               <h2 className="text-sm font-semibold text-foreground mb-4">Organização</h2>
-              
+
               {/* Logo upload */}
               <div className="mb-5">
                 <label className="text-[10px] font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Logo</label>
@@ -309,6 +231,99 @@ export default function SettingsPage() {
           ) : (
             <section className="rounded-lg border border-border p-4">
               <p className="text-xs text-muted-foreground">Apenas administradores podem editar as configurações da organização.</p>
+            </section>
+          )}
+
+          <section className="rounded-lg border border-border p-4">
+            <div className="mb-3">
+              <h2 className="text-sm font-semibold text-foreground">Preferências de análise da IA</h2>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Aplicadas a todas as conversas. Preferências específicas de uma conversa são configuradas na própria conversa.</p>
+            </div>
+            <div className="space-y-1.5 mb-3">
+              {rules.map((rule) => (
+                <div key={rule.id} className="flex items-center gap-2 bg-muted/50 rounded-md px-3 py-2">
+                  <span className="flex-1 text-xs text-foreground">{rule.rule_text}</span>
+                  {isAdmin && (
+                    <button onClick={() => deleteRule(rule.id)} className="text-muted-foreground/50 hover:text-destructive transition-colors">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {rules.length === 0 && <p className="text-xs text-muted-foreground">Nenhuma preferência adicionada.</p>}
+            </div>
+            {isAdmin && (
+              <div className="flex gap-2">
+                <input
+                  value={newRule}
+                  onChange={(e) => setNewRule(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addRule()}
+                  placeholder="Adicionar nova preferência..."
+                  className="flex-1 bg-muted border border-border rounded-md px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                />
+                <Button onClick={addRule} size="sm" variant="outline" className="gap-1 text-xs h-7">
+                  <Plus className="h-3 w-3" /> Adicionar
+                </Button>
+              </div>
+            )}
+          </section>
+        </TabsContent>
+
+        {/* ===================== ADMINISTRAÇÃO DA INFRAESTRUTURA ===================== */}
+        <TabsContent value="infra" className="space-y-4">
+          <p className="text-[11px] text-muted-foreground -mt-1 mb-1">
+            Área técnica — conexões e credenciais. Normalmente não é necessário mexer aqui no dia a dia.
+          </p>
+
+          {isAdmin && (
+            <section className="rounded-lg border border-border p-4 flex items-center justify-between">
+              <div className="space-y-0.5">
+                <h2 className="text-sm font-semibold text-foreground">Registro de novos usuários</h2>
+                <p className="text-[10px] text-muted-foreground">Habilitar ou desabilitar o cadastro de novos usuários na plataforma.</p>
+              </div>
+              <Switch
+                checked={registrationEnabled}
+                onCheckedChange={handleRegistrationToggle}
+                disabled={updatingRegistration}
+              />
+            </section>
+          )}
+
+          {isAdmin && (
+            <section className="rounded-lg border border-border p-4">
+              <EvolutionApiConfig orgId={org.id} />
+            </section>
+          )}
+
+          {isAdmin && (
+            <section className="rounded-lg border border-border p-4">
+              <WhatsAppInstancesManager
+                orgId={org.id}
+                instanceType="master"
+                isAdmin={isAdmin}
+                hasEvolutionConfig={hasEvolutionConfig}
+              />
+            </section>
+          )}
+
+          <section className="rounded-lg border border-border p-4">
+            <WhatsAppInstancesManager
+              orgId={org.id}
+              instanceType="user"
+              userId={user.id}
+              isAdmin={isAdmin}
+              hasEvolutionConfig={hasEvolutionConfig}
+              canCloneInstance={members.find(m => m.user_id === user.id)?.can_clone_instance ?? false}
+            />
+          </section>
+
+          <section className="rounded-lg border border-border p-4">
+            <AnthropicConfig orgId={org.id} isAdmin={isAdmin} />
+          </section>
+
+          {isAdmin && (
+            <section className="rounded-lg border border-border p-4">
+              <ResendConfig orgId={org.id} isAdmin={isAdmin} />
             </section>
           )}
         </TabsContent>

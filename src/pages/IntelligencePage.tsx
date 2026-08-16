@@ -13,6 +13,16 @@ import { useAiSuggestions, SUGGESTION_TYPE_LABELS, type AiSuggestion } from "@/h
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const SUGGESTION_TYPE_COLORS: Record<string, string> = {
+  possible_demand: "bg-primary/10 text-primary border-primary/20",
+  possible_deadline: "bg-accent/15 text-accent border-accent/25",
+  client_pending: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  office_pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  document_received: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  follow_up: "bg-muted text-muted-foreground border-transparent",
+  urgent_attention: "bg-destructive/10 text-destructive border-destructive/20",
+};
+
 export default function IntelligencePage() {
   const { org, loading: orgLoading } = useOrganization();
   const { clients } = useClients(org?.id);
@@ -116,17 +126,23 @@ export default function IntelligencePage() {
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-accent" /> Inteligência
+          {suggestions.length > 0 && (
+            <Badge className="bg-accent/15 text-accent border-0 text-[10px]">{suggestions.length} aguardando</Badge>
+          )}
         </h1>
-        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+        <p className="text-xs text-muted-foreground mt-1">
+          Revise situações identificadas pela IA antes que elas se tornem ações no escritório.
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-          Sugestões geradas pela IA. Nada vira demanda ou prazo sem sua confirmação — prazos jurídicos exigem uma ação explícita separada.
+          A IA nunca cria demandas ou prazos sozinha — toda ação exige confirmação humana.
         </p>
       </div>
 
       {suggestions.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">
           <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <h3 className="text-sm font-medium text-foreground mb-1">Nenhuma sugestão pendente</h3>
+          <h3 className="text-sm font-medium text-foreground mb-1">Nenhuma situação aguardando revisão</h3>
           <p className="text-xs text-muted-foreground">
             Abra uma conversa e clique em "Gerar sugestões de IA" para analisar as mensagens.
           </p>
@@ -137,7 +153,9 @@ export default function IntelligencePage() {
             <div key={s.id} className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="min-w-0">
-                  <Badge variant="outline" className="text-[10px] mb-1.5">{SUGGESTION_TYPE_LABELS[s.suggestion_type] || s.suggestion_type}</Badge>
+                  <Badge className={`text-[10px] mb-1.5 border ${SUGGESTION_TYPE_COLORS[s.suggestion_type] || "bg-muted text-muted-foreground border-transparent"}`}>
+                    {SUGGESTION_TYPE_LABELS[s.suggestion_type] || s.suggestion_type}
+                  </Badge>
                   <h3 className="text-sm font-medium text-foreground">{s.title}</h3>
                 </div>
                 {typeof s.confidence === "number" && (

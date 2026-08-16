@@ -177,8 +177,8 @@ export default function SummariesPage() {
       ) : groups.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border/50 p-16 text-center max-w-md mx-auto">
           <FileText className="h-12 w-12 text-muted-foreground/60 mx-auto mb-4" />
-          <h3 className="text-base font-semibold text-foreground mb-2">Nenhum grupo monitorado</h3>
-          <p className="text-sm text-muted-foreground">Adicione grupos para gerar resumos diários.</p>
+          <h3 className="text-base font-semibold text-foreground mb-2">Nenhuma conversa conectada</h3>
+          <p className="text-sm text-muted-foreground">Conecte conversas para gerar resumos diários.</p>
         </div>
       ) : (
         <div className="space-y-6">

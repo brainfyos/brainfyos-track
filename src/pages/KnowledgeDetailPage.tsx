@@ -181,7 +181,7 @@ export default function KnowledgeDetailPage() {
       .eq("group_id", groupId)
       .eq("knowledge_base_id", kbId);
     if (error) { toast.error("Erro ao desvincular"); return; }
-    toast.success("Grupo desvinculado");
+    toast.success("Conversa desvinculada");
     fetchData();
   };
 
@@ -298,13 +298,13 @@ export default function KnowledgeDetailPage() {
         )}
       </div>
 
-      {/* Linked Groups */}
+      {/* Linked Conversations */}
       <div>
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Grupos vinculados ({linkedGroups.length})</p>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Conversas vinculadas ({linkedGroups.length})</p>
         {linkedGroups.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-8 text-center">
             <Users className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Nenhum grupo vinculado. Associe na página do grupo.</p>
+            <p className="text-xs text-muted-foreground">Nenhuma conversa vinculada. Associe pela tela da conversa.</p>
           </div>
         ) : (
           <div className="rounded-lg border border-border bg-card divide-y divide-border">

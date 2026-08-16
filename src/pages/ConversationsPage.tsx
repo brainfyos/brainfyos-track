@@ -168,11 +168,16 @@ export default function ConversationsPage() {
         </>
       )}
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">Conversas</h1>
+      <div className="flex items-start justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">Central de Conversas</h1>
+          <p className="text-xs text-muted-foreground mt-1 max-w-md">
+            Conversas e grupos de clientes no WhatsApp, com histórico e responsável por atendimento.
+          </p>
+        </div>
         <Link to="/select-groups">
-          <Button size="sm" className="gap-1.5">
-            <Plus className="h-4 w-4" /> Adicionar
+          <Button size="sm" className="gap-1.5 shrink-0">
+            <Plus className="h-4 w-4" /> Nova conversa
           </Button>
         </Link>
       </div>
@@ -180,13 +185,13 @@ export default function ConversationsPage() {
       {groups.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">
           <Users className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <h3 className="text-sm font-medium text-foreground mb-1">Nenhum grupo monitorado</h3>
+          <h3 className="text-sm font-medium text-foreground mb-1">Nenhuma conversa conectada ainda</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            Adicione grupos do WhatsApp para começar.
+            Conecte uma conversa ou grupo de cliente no WhatsApp para começar.
           </p>
           <Link to="/select-groups">
             <Button size="sm" className="gap-1.5">
-              <Plus className="h-4 w-4" /> Adicionar Grupo
+              <Plus className="h-4 w-4" /> Nova conversa
             </Button>
           </Link>
         </div>

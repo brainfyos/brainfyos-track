@@ -6,12 +6,12 @@ export type AiSuggestion = Tables<"ai_suggestions">;
 export type AiSuggestionUpdate = TablesUpdate<"ai_suggestions">;
 
 export const SUGGESTION_TYPE_LABELS: Record<string, string> = {
-  possible_demand: "Possível demanda",
+  possible_demand: "Nova demanda",
   possible_deadline: "Possível prazo",
   client_pending: "Pendência do cliente",
   office_pending: "Pendência do escritório",
   document_received: "Documento recebido",
-  follow_up: "Follow-up",
+  follow_up: "Retorno necessário",
   urgent_attention: "Atenção urgente",
 };
 

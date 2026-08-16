@@ -120,7 +120,7 @@ export default function SelectGroups() {
       setManualName("");
       setManualGroupId("");
       setAddingManual(false);
-      toast.success("Grupo adicionado!");
+      toast.success("Conversa adicionada!");
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -137,13 +137,13 @@ export default function SelectGroups() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+      <Link to="/conversas" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Link>
 
-      <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Selecionar Grupos</h1>
+      <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Conectar conversas do WhatsApp</h1>
       <p className="text-sm text-muted-foreground mb-6">
-        Selecione os grupos do WhatsApp para monitoramento
+        Selecione os grupos ou conversas de clientes que você quer acompanhar
       </p>
 
       {/* Search + Refresh */}
@@ -153,7 +153,7 @@ export default function SelectGroups() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar grupo..."
+            placeholder="Buscar conversa..."
             className="w-full bg-secondary border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
           />
         </div>
@@ -173,7 +173,7 @@ export default function SelectGroups() {
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm text-foreground font-medium mb-1">Não foi possível buscar grupos</p>
+              <p className="text-sm text-foreground font-medium mb-1">Não foi possível buscar conversas</p>
               <p className="text-xs text-muted-foreground">{fetchError}</p>
             </div>
           </div>
@@ -184,12 +184,12 @@ export default function SelectGroups() {
       {fetchingGroups && evolutionGroups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <Loader2 className="h-6 w-6 text-primary animate-spin" />
-          <p className="text-sm text-muted-foreground">Buscando grupos da instância mãe...</p>
+          <p className="text-sm text-muted-foreground">Buscando conversas disponíveis...</p>
         </div>
       ) : filteredGroups.length > 0 ? (
         <div className="space-y-2 mb-6">
           <div className="flex items-center gap-2">
-            <p className="text-xs text-muted-foreground mb-2">{filteredGroups.length} grupo(s) encontrados</p>
+            <p className="text-xs text-muted-foreground mb-2">{filteredGroups.length} conversa(s) encontrada(s)</p>
             {fetchingPictures && <Loader2 className="h-3 w-3 text-muted-foreground animate-spin mb-2" />}
           </div>
           {filteredGroups.map(group => {
@@ -219,7 +219,7 @@ export default function SelectGroups() {
                 </div>
                 {isMonitored ? (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 shrink-0">
-                    <Check className="h-3 w-3" /> Monitorado
+                    <Check className="h-3 w-3" /> Conectada
                   </span>
                 ) : (
                   <Button
@@ -240,8 +240,8 @@ export default function SelectGroups() {
       ) : !fetchingGroups && !fetchError && evolutionGroups.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Nenhum grupo encontrado na instância mãe</p>
-          <p className="text-xs mt-1">Verifique se a instância está conectada e participa de grupos</p>
+          <p className="text-sm">Nenhuma conversa encontrada</p>
+          <p className="text-xs mt-1">Verifique se a conexão do WhatsApp está ativa</p>
         </div>
       ) : null}
 
@@ -253,14 +253,14 @@ export default function SelectGroups() {
           </Button>
         ) : (
           <div className="glass-panel rounded-xl p-5 animate-fade-in">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Adicionar Manualmente</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Adicionar manualmente</h3>
             <div className="grid gap-3">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome do Grupo</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome da conversa</label>
                 <input
                   value={manualName}
                   onChange={(e) => setManualName(e.target.value)}
-                  placeholder="Ex: Mentoria Avançada"
+                  placeholder="Ex: Cliente João Silva"
                   className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
                 />
               </div>
@@ -289,10 +289,10 @@ export default function SelectGroups() {
       {monitoredIds.size > 0 && (
         <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
           <p className="text-sm font-medium text-foreground">
-            {monitoredIds.size} grupo(s) monitorados
+            {monitoredIds.size} conversa(s) conectada(s)
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Volte ao Dashboard para ver seus grupos e gerar análises.
+            Volte para a Central de Conversas para acompanhar e analisar.
           </p>
         </div>
       )}
