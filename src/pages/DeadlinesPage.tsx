@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Loader2, CalendarClock, ShieldCheck, Sparkles, Check } from "lucide-react";
+import { Plus, Loader2, CalendarClock, ShieldCheck, Sparkles, Check, MoreVertical, Trash2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ClientSelect } from "@/components/ClientSelect";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useClients } from "@/hooks/useClients";
@@ -22,7 +23,7 @@ function isOverdue(dueAt: string, status: string) {
 export default function DeadlinesPage() {
   const { org, loading: orgLoading } = useOrganization();
   const { clients } = useClients(org?.id);
-  const { deadlines, loading, createDeadline, confirmDeadline, updateDeadline } = useDeadlines(org?.id);
+  const { deadlines, loading, createDeadline, confirmDeadline, updateDeadline, deleteDeadline } = useDeadlines(org?.id);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -69,6 +70,24 @@ export default function DeadlinesPage() {
       toast.success("Prazo marcado como cumprido");
     } catch {
       toast.error("Erro ao atualizar prazo");
+    }
+  };
+
+  const handleCancel = async (id: string) => {
+    try {
+      await updateDeadline(id, { status: "cancelled" });
+      toast.success("Prazo cancelado");
+    } catch {
+      toast.error("Erro ao cancelar prazo");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDeadline(id);
+      toast.success("Prazo excluído");
+    } catch {
+      toast.error("Erro ao excluir prazo");
     }
   };
 
@@ -122,6 +141,7 @@ export default function DeadlinesPage() {
                       </Badge>
                     )}
                     {d.status === "completed" && <Badge variant="outline" className="text-[10px]">Cumprido</Badge>}
+                    {d.status === "cancelled" && <Badge variant="outline" className="text-[10px]">Cancelado</Badge>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -135,6 +155,23 @@ export default function DeadlinesPage() {
                       Marcar cumprido
                     </Button>
                   )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {d.status !== "cancelled" && d.status !== "completed" && (
+                        <DropdownMenuItem onClick={() => handleCancel(d.id)}>
+                          <XCircle className="h-4 w-4 mr-2" /> Cancelar prazo
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(d.id)}>
+                        <Trash2 className="h-4 w-4 mr-2" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             );

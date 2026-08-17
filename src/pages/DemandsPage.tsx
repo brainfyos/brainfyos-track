@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, Loader2, Briefcase } from "lucide-react";
+import { Plus, Search, Loader2, Briefcase, MoreVertical, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ClientSelect } from "@/components/ClientSelect";
 import { cn } from "@/lib/utils";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -35,7 +36,7 @@ const emptyForm = { title: "", description: "", client_id: "", priority: "medium
 export default function DemandsPage() {
   const { org, loading: orgLoading } = useOrganization();
   const { clients } = useClients(org?.id);
-  const { demands, loading, createDemand, moveDemand } = useDemands(org?.id);
+  const { demands, loading, createDemand, moveDemand, deleteDemand } = useDemands(org?.id);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -153,7 +154,31 @@ export default function DemandsPage() {
                         draggedId === demand.id && "opacity-50"
                       )}
                     >
-                      <h4 className="text-sm font-medium text-foreground mb-1">{demand.title}</h4>
+                      <div className="flex items-start justify-between gap-1">
+                        <h4 className="text-sm font-medium text-foreground mb-1">{demand.title}</h4>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mt-0.5">
+                              <MoreVertical className="h-3.5 w-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={async () => {
+                                try {
+                                  await deleteDemand(demand.id);
+                                  toast.success("Demanda excluída");
+                                } catch {
+                                  toast.error("Erro ao excluir demanda");
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                       <p className="text-xs text-muted-foreground mb-2">{clientName(demand.client_id)}</p>
                       <div className="flex items-center gap-1.5">
                         <Badge className={cn("text-[10px] border-0", PRIORITY_COLOR[demand.priority])}>
