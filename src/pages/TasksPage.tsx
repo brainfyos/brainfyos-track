@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Loader2, CheckSquare, Circle, CheckCircle2, Clock } from "lucide-react";
+import { Plus, Loader2, CheckSquare, Circle, CheckCircle2, Clock, MoreVertical, Trash2, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ClientSelect } from "@/components/ClientSelect";
 import { cn } from "@/lib/utils";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -20,7 +22,7 @@ const emptyForm = { title: "", description: "", client_id: "", priority: "medium
 export default function TasksPage() {
   const { org, loading: orgLoading } = useOrganization();
   const { clients } = useClients(org?.id);
-  const { tasks, loading, createTask, setTaskStatus } = useTasks(org?.id);
+  const { tasks, loading, createTask, setTaskStatus, updateTask, deleteTask } = useTasks(org?.id);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -36,6 +38,23 @@ export default function TasksPage() {
       await setTaskStatus(id, currentStatus === "completed" ? "pending" : "completed");
     } catch {
       toast.error("Erro ao atualizar tarefa");
+    }
+  };
+
+  const handleStart = async (id: string) => {
+    try {
+      await updateTask(id, { status: "in_progress", completed_at: null });
+    } catch {
+      toast.error("Erro ao atualizar tarefa");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTask(id);
+      toast.success("Tarefa excluída");
+    } catch {
+      toast.error("Erro ao excluir tarefa");
     }
   };
 
@@ -90,6 +109,23 @@ export default function TasksPage() {
                 <Badge variant="outline" className="text-[10px]">{TASK_PRIORITIES.find((p) => p.value === task.priority)?.label}</Badge>
               </div>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {task.status !== "in_progress" && task.status !== "completed" && (
+                  <DropdownMenuItem onClick={() => handleStart(task.id)}>
+                    <PlayCircle className="h-4 w-4 mr-2" /> Marcar em andamento
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(task.id)}>
+                  <Trash2 className="h-4 w-4 mr-2" /> Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ))}
       </div>
@@ -153,6 +189,17 @@ export default function TasksPage() {
               <div className="space-y-1.5">
                 <Label>Prazo</Label>
                 <Input type="date" value={form.due_at} onChange={(e) => setForm({ ...form, due_at: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Prioridade</Label>
+                <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
+                  <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {TASK_PRIORITIES.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-1.5">
